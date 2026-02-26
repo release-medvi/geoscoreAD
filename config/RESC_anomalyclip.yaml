@@ -1,0 +1,83 @@
+# ============================================================
+# General
+# ============================================================
+seed: 0
+device: cuda:0
+num_few_shot: 1
+num_fewshot_repeats: 5
+epochs: 150
+lr: 1e-2
+normalization: OpenAI                           # ImageNet or OpenAI or None
+
+# ============================================================
+# Logging
+# ============================================================
+logging:
+  base_dir: results/AnomalyCLIP/${dataset.name}
+  tag: ""
+  wandb:
+    enabled: false
+    project: AnomalyCLIP_fewshot
+  resume: true
+
+# ============================================================
+# Embedding Model
+# ============================================================
+embedding:
+  model_name: clip_vitl14
+  resolution: 448
+  patch_size: 14
+
+  normalize: true
+  use_positional_encoding: false
+
+  pca:
+    components: -1
+    batchsize: 200
+
+  batch_size: 1
+
+# ============================================================
+# Few-Shot Classifier
+# ============================================================
+fewshot:
+  object_mask: false
+  threshold_default: 0.5
+  min_abnormal_token_ratio: 0.01   # replaces hard-coded min_abnormal_tokens
+  evaluation_max_batch_size: 32768
+
+
+
+# ============================================
+# Score model (AnomalyCLIP)
+# ============================================
+
+score_model:
+  name: anomalyclip
+  anomalyclip:
+    checkpoint: checkpoints/9_12_4_multiscale_visa_epoch_15.pth
+
+
+# ============================================
+# Dataset
+# ============================================
+dataset:
+  name: RESC
+  data_root: ${oc.env:DATA_ROOT}/RESC          # Path to the root directory of the dataset.
+  path_train_images: "{data_root}/train/{type_anomaly}"
+  path_val_images: "{data_root}/val/{type_anomaly}/img"
+  path_val_labels: "{data_root}/val/{type_anomaly}/label"
+  path_test_images: "{data_root}/test/{type_anomaly}/img"
+  path_test_labels: "{data_root}/test/{type_anomaly}/label"
+  objects: [""]
+  object_anomalies:
+    "": ["ungood"]
+
+
+# ============================================================
+# Visualization
+# ============================================================
+visualization:
+  save_embedding_maps: false
+  rotate_samples: 3
+  visualize_training_step: false    
